@@ -6,4 +6,6 @@ describe Maleable::File do
   it { should have_field(:gridfs_id).of_type(BSON::ObjectId) }
   it { should have_field(:version).of_type(Integer) }
   it { should embed_many(:versions) }
+  it { should validate_presence_of(:name) }
+  it { should validate_uniqueness_of(:name) }
 end
