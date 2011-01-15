@@ -1,7 +1,7 @@
 # A sample Gemfile
 source "http://rubygems.org"
-gem 'vigilo', :path => '/Users/shingara/prog/ruby/vigilo'
-gem 'mongoid', :path => '/Users/shingara/prog/ruby/mongoid'
+gem 'vigilo', :git => 'git://github.com/wycats/vigilo.git'
+gem 'mongoid', '>= 2.0.0.rc.4'
 gem 'mongo'
 gem 'bson_ext'
 gem 'activesupport'
