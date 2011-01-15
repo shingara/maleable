@@ -3,6 +3,8 @@ module Maleable
     include Mongoid::Document
     include Mongoid::Timestamps
     include Mongoid::Versioning
+    include Mongoid::Paranoia
+
 
     field :name, :type => String
     field :gridfs_id, :type => BSON::ObjectId

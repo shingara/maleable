@@ -3,21 +3,23 @@ module Maleable
     def self.changed(directories)
       return true unless directories
       directories.each do |directory|
-        Maleable::Base.config.logger.debug("File #{directory} changed")
+        Maleable::Base.config.logger.debug("File #{directory} changed") if Maleable::Base.config.logger
       end
     end
 
     def self.removed(directories)
       return true unless directories
       directories.each do |directory|
-        Maleable::Base.config.logger.debug("File #{directory} removed")
+        Maleable::Base.config.logger.debug("File #{directory} removed") if Maleable::Base.config.logger
+        f = Maleable::File.where(:name => directory).first
+        f.delete if f
       end
     end
 
     def self.added(directories)
       return true unless directories
       directories.each do |directory|
-        Maleable::Base.config.logger.debug("File #{directory} added")
+        Maleable::Base.config.logger.debug("File #{directory} added") if Maleable::Base.config.logger
       end
     end
 

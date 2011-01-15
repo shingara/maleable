@@ -7,11 +7,10 @@ describe Maleable::Action do
     end
     it 'should logged changed information in debug logger if a directory changed' do
       logger = double(:logger)
-      Maleable::Base.configure do |config|
-        config.logger = logger
-      end
+      Maleable::Base.config.logger = logger
       logger.should_receive(:debug).with("File ./ok changed")
       Maleable::Action.changed(['./ok'])
+      Maleable::Base.config.logger = nil
     end
   end
 
@@ -22,11 +21,18 @@ describe Maleable::Action do
 
     it 'should logged removed information in debug logger if a directory removed' do
       logger = double(:logger)
-      Maleable::Base.configure do |config|
-        config.logger = logger
-      end
+      Maleable::Base.config.logger = logger
       logger.should_receive(:debug).with("File ./ok removed")
       Maleable::Action.removed(['./ok'])
+      Maleable::Base.config.logger = nil
+    end
+
+    it 'should mark delete the Mongo object' do
+      f = File.join(File.dirname(__FILE__), '../fixtures/typologo.gif')
+      m = Maleable::File.create(:name => f)
+      Maleable::Action.removed([f])
+      m.reload.deleted_at.should_not be_nil
+      Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil
     end
   end
 
@@ -42,6 +48,7 @@ describe Maleable::Action do
       end
       logger.should_receive(:debug).with("File ./ok added")
       Maleable::Action.added(['./ok'])
+      Maleable::Base.config.logger = nil
     end
 
   end
