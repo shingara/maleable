@@ -8,4 +8,15 @@ describe Maleable::File do
   it { should embed_many(:versions) }
   it { should validate_presence_of(:name) }
   it { should validate_uniqueness_of(:name) }
+
+  describe "Save in GridFS in after_create" do
+    it 'should add file in GridFS and get id in object' do
+      m = Maleable::File.new(:name => File.join(File.dirname(__FILE__),
+                                               '../fixtures/typologo.gif'))
+      m.gridfs_id.should be_nil
+      m.save
+      m.reload.gridfs_id.should_not be_nil
+      Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil
+    end
+  end
 end

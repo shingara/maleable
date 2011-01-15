@@ -10,5 +10,12 @@ module Maleable
     validates_presence_of :name
     validates_uniqueness_of :name
 
+    after_create :save_on_gridfs
+
+    def save_on_gridfs
+      f = Maleable::Base.gridfs.put('hello')
+      collection.update({:_id => self.id}, {'$set' => {:gridfs_id => f}})
+    end
+
   end
 end
