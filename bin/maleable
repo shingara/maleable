@@ -1,0 +1,3 @@
+#! /usr/bin/env ruby
+require 'maleable'
+Maleable::Runner.run(ARGV[0])
