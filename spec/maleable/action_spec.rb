@@ -35,9 +35,12 @@ describe Maleable::Action do
     end
 
     it 'should mark delete the Mongo object' do
-      m = Maleable::File.create(:name => file_to_save)
+      m = Maleable::File.create(:name => file_to_save,
+                               :updated_at => Time.now - 10,
+                               :created_at => Time.now - 20)
       Maleable::Action.removed([file_to_save])
       m.reload.deleted_at.should_not be_nil
+      m.updated_at.should be_within(1).of(m.deleted_at)
       Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil
     end
   end
