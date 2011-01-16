@@ -5,6 +5,7 @@ gem 'mongoid', '>= 2.0.0.rc.4'
 gem 'mongo'
 gem 'bson_ext'
 gem 'activesupport'
+gem 'ruby-fsevent'
 
 group :development do
   gem 'rspec'

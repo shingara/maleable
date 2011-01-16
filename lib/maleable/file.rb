@@ -44,7 +44,8 @@ module Maleable
     # Save file on gridfs and update the gridfs_id
     #
     def save_on_gridfs
-      f = Maleable::Base.gridfs.put(::File.open(self.name))
+      f = Maleable::Base.gridfs.put(::File.open(self.name),
+                                   :filename => self.name)
       collection.update({:_id => self.id}, {'$set' => {:gridfs_id => f}})
       Maleable::Base.debug("Save on gridfs the file : #{self.name}")
     end

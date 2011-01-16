@@ -1,4 +1,5 @@
 require 'vigilo'
+require 'vigilo/adapters/fsevents'
 require 'mongoid'
 require 'active_support/configurable'
 

@@ -64,7 +64,7 @@ describe Maleable::Action do
       Maleable::File.where(:name => file_to_save).destroy_all
       lambda do
         lambda do
-          Maleable::Action.added(file_to_save)
+          Maleable::Action.added([file_to_save])
         end.should change(Maleable::File, :count).by(1)
       end.should change(file_db, :count).by(1)
       m = Maleable::File.where(:name => file_to_save).first
