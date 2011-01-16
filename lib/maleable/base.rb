@@ -10,5 +10,12 @@ module Maleable
       end
       self.gridfs = Mongo::Grid.new(db)
     end
+
+    # Print in debug level the text. Not print if no logger
+    def self.debug(text)
+      if config.logger
+        config.logger.debug(text)
+      end
+    end
   end
 end

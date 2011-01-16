@@ -17,6 +17,16 @@ module Maleable
     # Check all data from gridfs and download it in local
     #
     def self.update_from_remote(directory)
+      Dir.chdir(directory)
+      c = 0
+      Dir.glob('**/*') do |directory|
+        # We don't need save directory
+        unless ::File.directory?(directory)
+          Maleable::Base.debug("file exists : #{directory}")
+          c += 1
+        end
+      end
+      Maleable::Base.debug("number of file check : #{c}")
     end
 
     ##
