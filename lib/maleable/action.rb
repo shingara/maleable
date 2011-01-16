@@ -6,7 +6,7 @@ module Maleable
         Maleable::Base.config.logger.debug("File #{directory} changed") if Maleable::Base.config.logger
         f = Maleable::File.where(:name => directory).first
         f.name = directory
-        f.save
+        f.save!
       end
     end
 
@@ -23,7 +23,7 @@ module Maleable
       return true unless directories
       directories.each do |directory|
         Maleable::Base.config.logger.debug("File #{directory} added") if Maleable::Base.config.logger
-        Maleable::File.create(:name => directory)
+        Maleable::File.create!(:name => directory)
       end
     end
 
