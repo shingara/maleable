@@ -4,6 +4,9 @@ module Maleable
       return true unless directories
       directories.each do |directory|
         Maleable::Base.config.logger.debug("File #{directory} changed") if Maleable::Base.config.logger
+        f = Maleable::File.where(:name => directory).first
+        f.name = directory
+        f.save
       end
     end
 

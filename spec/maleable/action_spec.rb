@@ -10,7 +10,11 @@ describe Maleable::Action do
               '../fixtures/typologo.gif')
   }
 
+  let(:maleable_file) { Maleable::File.create(:name => file_to_save) }
+  let(:file_db) { Maleable::Base.gridfs.instance_variable_get(:@files) }
+
   describe ".changed" do
+    before { maleable_file }
     it 'should do nothing if nil pass like args' do
       Maleable::Action.changed(nil).should == true
     end
@@ -19,6 +23,16 @@ describe Maleable::Action do
       Maleable::Base.config.logger = logger
       logger.should_receive(:debug).with("File #{file_to_save} changed")
       Maleable::Action.changed([file_to_save])
+    end
+    it 'should update :gridfs_id and :updated_at field if file is change. Keep the version' do
+      lambda do
+        lambda do
+          Maleable::Action.changed([maleable_file.name])
+        end.should_not change(Maleable::File, :count)
+      end.should change(file_db, :count).by(1)
+      maleable_file.reload.versions.should_not be_empty
+      maleable_file.gridfs_id.should_not be_nil
+      maleable_file.gridfs_id.should_not == maleable_file.versions.last.gridfs_id
     end
   end
 
@@ -38,7 +52,9 @@ describe Maleable::Action do
       m = Maleable::File.create(:name => file_to_save,
                                :updated_at => Time.now - 10,
                                :created_at => Time.now - 20)
-      Maleable::Action.removed([file_to_save])
+      lambda do
+        Maleable::Action.removed([file_to_save])
+      end.should_not change(file_db, :count)
       m.reload.deleted_at.should_not be_nil
       m.updated_at.should be_within(1).of(m.deleted_at)
       Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil
@@ -62,8 +78,10 @@ describe Maleable::Action do
     it 'should add the File on Gridfs' do
       Maleable::File.where(:name => file_to_save).destroy_all
       lambda do
-        Maleable::Action.added(file_to_save)
-      end.should change(Maleable::File, :count).by(1)
+        lambda do
+          Maleable::Action.added(file_to_save)
+        end.should change(Maleable::File, :count).by(1)
+      end.should change(file_db, :count).by(1)
       m = Maleable::File.where(:name => file_to_save).first
       m.should_not be_nil
       m.gridfs_id.should_not be_nil

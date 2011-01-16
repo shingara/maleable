@@ -12,7 +12,7 @@ module Maleable
     validates_presence_of :name
     validates_uniqueness_of :name
 
-    after_create :save_on_gridfs
+    after_save :save_on_gridfs
 
     def save_on_gridfs
       f = Maleable::Base.gridfs.put(::File.open(self.name))

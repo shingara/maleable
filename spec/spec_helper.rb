@@ -6,7 +6,7 @@ require 'maleable'
 Maleable::Base.configure_database(:database => 'maleable_test')
 Rspec.configure do |config|
   config.include Mongoid::Matchers
-  config.before(:all) do
+  config.before(:each) do
     Mongoid.master.collections.select {|c| c.name !~ /fs|system/ }.each(&:drop)
     Mongoid.master.collections.select { |c| c.name =~ /fs/ }.each(&:remove)
   end
