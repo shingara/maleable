@@ -20,6 +20,7 @@ module Maleable
       return true unless directories
       directories.each do |directory|
         Maleable::Base.config.logger.debug("File #{directory} added") if Maleable::Base.config.logger
+        Maleable::File.create(:name => directory)
       end
     end
 

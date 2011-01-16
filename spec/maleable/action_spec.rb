@@ -1,6 +1,15 @@
 require 'spec_helper'
 
 describe Maleable::Action do
+  after(:each) do
+    Maleable::Base.config.logger = nil
+  end
+
+  let(:file_to_save){
+    File.join(File.dirname(__FILE__),
+              '../fixtures/typologo.gif')
+  }
+
   describe ".changed" do
     it 'should do nothing if nil pass like args' do
       Maleable::Action.changed(nil).should == true
@@ -8,9 +17,8 @@ describe Maleable::Action do
     it 'should logged changed information in debug logger if a directory changed' do
       logger = double(:logger)
       Maleable::Base.config.logger = logger
-      logger.should_receive(:debug).with("File ./ok changed")
-      Maleable::Action.changed(['./ok'])
-      Maleable::Base.config.logger = nil
+      logger.should_receive(:debug).with("File #{file_to_save} changed")
+      Maleable::Action.changed([file_to_save])
     end
   end
 
@@ -24,13 +32,11 @@ describe Maleable::Action do
       Maleable::Base.config.logger = logger
       logger.should_receive(:debug).with("File ./ok removed")
       Maleable::Action.removed(['./ok'])
-      Maleable::Base.config.logger = nil
     end
 
     it 'should mark delete the Mongo object' do
-      f = File.join(File.dirname(__FILE__), '../fixtures/typologo.gif')
-      m = Maleable::File.create(:name => f)
-      Maleable::Action.removed([f])
+      m = Maleable::File.create(:name => file_to_save)
+      Maleable::Action.removed([file_to_save])
       m.reload.deleted_at.should_not be_nil
       Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil
     end
@@ -46,9 +52,19 @@ describe Maleable::Action do
       Maleable::Base.configure do |config|
         config.logger = logger
       end
-      logger.should_receive(:debug).with("File ./ok added")
-      Maleable::Action.added(['./ok'])
-      Maleable::Base.config.logger = nil
+      logger.should_receive(:debug).with("File #{file_to_save} added")
+      Maleable::Action.added([file_to_save])
+    end
+
+    it 'should add the File on Gridfs' do
+      Maleable::File.where(:name => file_to_save).destroy_all
+      lambda do
+        Maleable::Action.added(file_to_save)
+      end.should change(Maleable::File, :count).by(1)
+      m = Maleable::File.where(:name => file_to_save).first
+      m.should_not be_nil
+      m.gridfs_id.should_not be_nil
+      Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil
     end
 
   end
