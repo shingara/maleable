@@ -18,12 +18,6 @@ describe Maleable::Action do
     it 'should do nothing if nil pass like args' do
       Maleable::Action.changed(nil).should == true
     end
-    it 'should logged changed information in debug logger if a directory changed' do
-      logger = double(:logger)
-      Maleable::Base.config.logger = logger
-      logger.should_receive(:debug).with("File #{file_to_save} changed")
-      Maleable::Action.changed([file_to_save])
-    end
     it 'should update :gridfs_id and :updated_at field if file is change. Keep the version' do
       lambda do
         lambda do
@@ -64,15 +58,6 @@ describe Maleable::Action do
   describe ".added" do
     it 'should do nothing if nil pass like args' do
       Maleable::Action.added(nil).should == true
-    end
-
-    it 'should logged added information in debug logger if a directory added' do
-      logger = double(:logger)
-      Maleable::Base.configure do |config|
-        config.logger = logger
-      end
-      logger.should_receive(:debug).with("File #{file_to_save} added")
-      Maleable::Action.added([file_to_save])
     end
 
     it 'should add the File on Gridfs' do
