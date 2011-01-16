@@ -23,6 +23,7 @@ module Maleable
         # We don't need save directory
         unless ::File.directory?(directory)
           Maleable::Base.debug("file exists : #{directory}")
+          Maleable::File.update_or_create(directory)
           c += 1
         end
       end
