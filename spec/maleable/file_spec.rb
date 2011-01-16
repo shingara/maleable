@@ -1,6 +1,10 @@
 require 'spec_helper'
 describe Maleable::File do
 
+  after {
+    FileUtils.rm_f('tmp_file')
+  }
+
   let(:file_to_save){
     File.join(File.dirname(__FILE__),
               '../fixtures/typologo.gif')
