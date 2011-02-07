@@ -18,9 +18,11 @@ describe Maleable::Action do
     it 'should do nothing if nil pass like args' do
       Maleable::Action.changed(nil).should == true
     end
+
     it 'should update :gridfs_id and :updated_at field if file is change. Keep the version' do
       lambda do
         lambda do
+          ::File.should_receive(:read).with(maleable_file.name).and_return('hello')
           Maleable::Action.changed([maleable_file.name])
         end.should_not change(Maleable::File, :count)
       end.should change(file_db, :count).by(1)
@@ -38,7 +40,7 @@ describe Maleable::Action do
     it 'should logged removed information in debug logger if a directory removed' do
       logger = double(:logger)
       Maleable::Base.config.logger = logger
-      logger.should_receive(:debug).with("File ./ok removed")
+      logger.should_receive(:debug).with("File ok removed")
       Maleable::Action.removed(['./ok'])
     end
 
@@ -67,7 +69,7 @@ describe Maleable::Action do
           Maleable::Action.added([file_to_save])
         end.should change(Maleable::File, :count).by(1)
       end.should change(file_db, :count).by(1)
-      m = Maleable::File.where(:name => file_to_save).first
+      m = Maleable::File.where(:name => Maleable::File.without_base_dir(file_to_save)).first
       m.should_not be_nil
       m.gridfs_id.should_not be_nil
       Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil

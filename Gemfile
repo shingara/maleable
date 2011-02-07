@@ -6,6 +6,7 @@ gem 'mongo'
 gem 'bson_ext'
 gem 'activesupport'
 gem 'ruby-fsevent'
+gem 'eventmachine'
 
 group :development do
   gem 'rspec'

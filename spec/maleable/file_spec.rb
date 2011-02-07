@@ -26,14 +26,18 @@ describe Maleable::File do
 
   describe "Save in GridFS in after_create" do
     it 'should add file in GridFS and get id in object' do
-      m = Maleable::File.new(:name => File.join(File.dirname(__FILE__),
-                                               '../fixtures/typologo.gif'))
+      m = Maleable::File.new(:name => file_to_save)
       m.gridfs_id.should be_nil
       m.save
       m.reload.gridfs_id.should_not be_nil
       Maleable::Base.gridfs.get(m.gridfs_id).should_not be_nil
     end
   end
+
+  it 'should have a name from base_directory' do
+    maleable_file.name.should == 'fixtures/typologo.gif'
+  end
+
 
   describe ".update_or_create" do
     it 'should do nothing if file already exist and is the same in md5' do
@@ -66,6 +70,22 @@ describe Maleable::File do
           Maleable::File.update_or_create('tmp_file')
         end.should_not change(Maleable::File, :count).by(1)
       end.should change(file_db, :count).by(1)
+    end
+  end
+
+  describe "#write_on_disk(base_directory)" do
+    after do
+      FileUtils.rm("/tmp/#{maleable_file.name}")
+    end
+    before do
+      ::File.should_not be_exists("/tmp/#{maleable_file.name}")
+      maleable_file.reload.write_on_disk('/tmp')
+    end
+    it 'should create file and directory if needed' do
+      ::File.should be_exists("/tmp/#{maleable_file.name}")
+    end
+    it 'should write the file with gridFS data' do
+      ::FileUtils.compare_file("/tmp/#{maleable_file.name}", file_to_save).should be_true
     end
   end
 end

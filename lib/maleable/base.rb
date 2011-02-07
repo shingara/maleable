@@ -17,5 +17,12 @@ module Maleable
         config.logger.debug(text)
       end
     end
+
+    # Print in info level the text. Not print if no logger
+    def self.info(text)
+      if config.logger
+        config.logger.info(text)
+      end
+    end
   end
 end

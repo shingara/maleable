@@ -3,16 +3,16 @@ module Maleable
     def self.changed(directories)
       return true unless directories
       directories.each do |directory|
+        directory = Maleable::File.without_base_dir(directory)
         Maleable::Base.config.logger.debug("File #{directory} changed") if Maleable::Base.config.logger
-        f = Maleable::File.where(:name => directory).first
-        f.name = directory
-        f.save!
+        Maleable::File.update_or_create(directory)
       end
     end
 
     def self.removed(directories)
       return true unless directories
       directories.each do |directory|
+        directory = Maleable::File.without_base_dir(directory)
         Maleable::Base.config.logger.debug("File #{directory} removed") if Maleable::Base.config.logger
         f = Maleable::File.where(:name => directory).first
         f.delete if f

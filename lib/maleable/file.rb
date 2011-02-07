@@ -5,6 +5,8 @@ module Maleable
     include Mongoid::Versioning
     include Mongoid::Paranoia
 
+    cattr_accessor :base_dir
+
 
     field :name, :type => String
     field :gridfs_id, :type => BSON::ObjectId
@@ -13,6 +15,15 @@ module Maleable
     validates_uniqueness_of :name
 
     after_save :save_on_gridfs
+    before_validation :improve_name
+
+    def improve_name
+      self.name = self.class.without_base_dir(self.name)
+    end
+
+    def self.without_base_dir(name)
+      ::File.expand_path(name).gsub(/#{Regexp.escape(self.base_dir)}\/?/, '')
+    end
 
 
     ##
@@ -30,6 +41,10 @@ module Maleable
         local_md5.update(::File.read(m.name))
         unless local_md5.hexdigest == m.grid_io['md5']
           m.send :save_on_gridfs
+          collection.update({:_id => m.id},
+                            {'$set' => {:version => m.version + 1},
+                             '$push' => {:versions => m.as_document}})
+
         end
       end
     end
@@ -38,12 +53,23 @@ module Maleable
       Maleable::Base.gridfs.get(self.gridfs_id)
     end
 
+
+    def write_on_disk(directory)
+      FileUtils.cd(directory)
+      ::FileUtils.mkdir_p(::File.dirname(self.name))
+      ::FileUtils.touch(self.name)
+      ::File.open(self.name, 'wb') do |fo|
+        fo.write self.grid_io.read
+      end
+    end
+
     private
 
     ##
     # Save file on gridfs and update the gridfs_id
     #
     def save_on_gridfs
+      FileUtils.cd(self.class.base_dir)
       f = Maleable::Base.gridfs.put(::File.open(self.name),
                                    :filename => self.name)
       collection.update({:_id => self.id}, {'$set' => {:gridfs_id => f}})
