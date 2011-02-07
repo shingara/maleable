@@ -1,3 +1,4 @@
+require 'fssm'
 require 'eventmachine'
 module Maleable
   class Runner
@@ -14,10 +15,18 @@ module Maleable
         child_id = EM.fork_reactor do
           trap('INT') { exit }
           trap('KILL') { exit }
-          Vigilo::Watcher.watch(Dir.getwd) do |changed, added, deleted|
-            Maleable::Action.changed(changed[:changed].map{|d| d.gsub(Dir.getwd + '/', '')})
-            Maleable::Action.removed(changed[:removed].map{|d| d.gsub(Dir.getwd + '/', '')})
-            Maleable::Action.added(changed[:added].map{|d| d.gsub(Dir.getwd + '/', '')})
+          FSSM.monitor(Dir.getwd, '**/*') do
+            update { |base, relative|
+              Maleable::Action.changed(relative)
+            }
+
+            create { |base, relative|
+              Maleable::Action.added(relative)
+            }
+
+            delete { |base, relative|
+              Maleable::Action.removed(relative)
+            }
           end
         end
         Process.detach(child_id)

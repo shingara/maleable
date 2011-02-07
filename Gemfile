@@ -1,11 +1,11 @@
 # A sample Gemfile
 source "http://rubygems.org"
-gem 'vigilo', :git => 'git://github.com/wycats/vigilo.git'
+gem 'fssm'
 gem 'mongoid', '>= 2.0.0.rc.4'
 gem 'mongo'
 gem 'bson_ext'
 gem 'activesupport'
-gem 'ruby-fsevent'
+gem 'rb-fsevent'
 gem 'eventmachine'
 
 group :development do

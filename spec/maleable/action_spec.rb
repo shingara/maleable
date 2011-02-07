@@ -23,7 +23,7 @@ describe Maleable::Action do
       lambda do
         lambda do
           ::File.should_receive(:read).with(maleable_file.name).and_return('hello')
-          Maleable::Action.changed([maleable_file.name])
+          Maleable::Action.changed(maleable_file.name)
         end.should_not change(Maleable::File, :count)
       end.should change(file_db, :count).by(1)
       maleable_file.reload.versions.should_not be_empty
@@ -41,7 +41,7 @@ describe Maleable::Action do
       logger = double(:logger)
       Maleable::Base.config.logger = logger
       logger.should_receive(:debug).with("File ok removed")
-      Maleable::Action.removed(['./ok'])
+      Maleable::Action.removed('ok')
     end
 
     it 'should mark delete the Mongo object' do
@@ -49,7 +49,7 @@ describe Maleable::Action do
                                :updated_at => Time.now - 10,
                                :created_at => Time.now - 20)
       lambda do
-        Maleable::Action.removed([file_to_save])
+        Maleable::Action.removed(file_to_save)
       end.should_not change(file_db, :count)
       m.reload.deleted_at.should_not be_nil
       m.updated_at.should be_within(1).of(m.deleted_at)
@@ -66,7 +66,7 @@ describe Maleable::Action do
       Maleable::File.where(:name => file_to_save).destroy_all
       lambda do
         lambda do
-          Maleable::Action.added([file_to_save])
+          Maleable::Action.added(file_to_save)
         end.should change(Maleable::File, :count).by(1)
       end.should change(file_db, :count).by(1)
       m = Maleable::File.where(:name => Maleable::File.without_base_dir(file_to_save)).first
