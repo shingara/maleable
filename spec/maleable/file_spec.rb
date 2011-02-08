@@ -13,6 +13,7 @@ describe Maleable::File do
   let(:file_db) { Maleable::Base.gridfs.instance_variable_get(:@files) }
 
   it { should have_field(:name).of_type(String) }
+  it { should have_field(:name_dir).of_type(String) }
   it { should have_field(:created_at).of_type(Time) }
   it { should have_field(:updated_at).of_type(Time) }
   it { should have_field(:gridfs_id).of_type(BSON::ObjectId) }
@@ -22,6 +23,7 @@ describe Maleable::File do
   it { should embed_many(:versions) }
 
   it { should validate_presence_of(:name) }
+  it { should validate_presence_of(:name_dir) }
   it { should validate_uniqueness_of(:name) }
 
   describe "Save in GridFS in after_create" do

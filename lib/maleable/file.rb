@@ -6,16 +6,19 @@ module Maleable
     include Mongoid::Paranoia
 
     cattr_accessor :base_dir
+    cattr_accessor :name_dir
 
-
+    field :name_dir, :type => String
     field :name, :type => String
     field :gridfs_id, :type => BSON::ObjectId
 
+    validates_presence_of :name_dir
     validates_presence_of :name
-    validates_uniqueness_of :name
+    validates_uniqueness_of :name, :scope => [:name_dir]
 
     after_save :save_on_gridfs
     before_validation :improve_name
+    before_validation :define_name_dir
 
     def improve_name
       self.name = self.class.without_base_dir(self.name)
@@ -74,6 +77,10 @@ module Maleable
                                    :filename => self.name)
       collection.update({:_id => self.id}, {'$set' => {:gridfs_id => f}})
       Maleable::Base.debug("Save on gridfs the file : #{self.name}")
+    end
+
+    def define_name_dir
+      self.name_dir ||= self.class.name_dir
     end
 
   end

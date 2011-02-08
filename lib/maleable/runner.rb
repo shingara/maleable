@@ -3,8 +3,9 @@ require 'eventmachine'
 module Maleable
   class Runner
 
-    def self.run(directory)
+    def self.run(name, directory)
       Dir.chdir(directory)
+      Maleable::File.name_dir = name
       Maleable::File.base_dir = directory
       update_from_remote(directory)
       push_update_in_local(directory)
