@@ -1,4 +1,5 @@
 #! /usr/bin/env ruby
+$:.push File.expand_path("../lib", __FILE__)
 require 'maleable'
 Maleable::Base.configure do |config|
   config.logger = Logger.new($stdout)
