@@ -1,8 +1,13 @@
 #! /usr/bin/env ruby
-$:.push File.expand_path("../lib", __FILE__)
+$:.push File.expand_path("../../lib", __FILE__)
+
 require 'maleable'
 Maleable::Base.configure do |config|
   config.logger = Logger.new($stdout)
 end
 Maleable::Base.configure_database({:database => 'maleable'})
+if ARGV.size < 2
+  puts "Need 2 args, the name to save and the directory to synchronise"
+  exit 1
+end
 Maleable::Runner.run(ARGV[0], ARGV[1])
